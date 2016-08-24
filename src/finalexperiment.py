@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 # Json helper function
 def getJSON(delay, jitterdown, jitterup, upspeed, downspeed, percentloss, house):
-	js = {
+	return {
 	    "content": {
 	        "down": {
 	            "corruption": {
@@ -72,7 +72,6 @@ def getJSON(delay, jitterdown, jitterup, upspeed, downspeed, percentloss, house)
 	    "id": 10,
 	    "name": "house" + str(house)
 	}
-	return js
 
 
 # Reading the database
@@ -81,7 +80,7 @@ allcsv = pd.read_csv('full.csv')
 if args.houseid:
 	house = int(args.houseid)
 	houseinfo = allcsv[allcsv.unit_id == house]
-if not args.houseid:
+else:
 	if args.state:
 		allcsv=allcsv[allcsv.STATE == args.state]
 	if args.price_range:
@@ -116,8 +115,8 @@ def netem_template(delay, jitter, percentloss, speed):
 	statements = [
 	"sudo tc qdisc add dev eth1 root handle 1:0 netem delay %0.6fms %0.6fms loss %0.6f%%" % (delay, jitter, percentloss),
 	"sudo tc qdisc add dev eth1 parent 1:1 handle 10: tbf rate %dkbit limit 500000000 burst 100000" % speed,
-	"sudo apt-get -y install iperf", # for testing
-	"touch ready" # to know the command is complete, check for ~/user/name/ready
+	"sudo apt-get update",
+	"sudo apt-get -y install iperf" # for testing
 	]
 	return "; ".join(statements)
 
@@ -144,6 +143,8 @@ for i in range(len(con)):
 		netem = server_netem
 
 	igvm = IGX.XenVM(nodename)
+
+	# embed the startup commands in the rpsec, autorun on startup
 	igvm.addService(PG.Execute(shell="/bin/sh", command=netem))
 	vms.insert(i, igvm)
 
