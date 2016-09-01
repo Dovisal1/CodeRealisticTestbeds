@@ -1,23 +1,35 @@
+# Bridging the empathy gap between web developers and users
+
+In this experiment, you'll set up a topology on GENI that uses realistic link characteristics, based on measurements from actual US households. 
+
+It should take about 60 minutes to run this experiment.
+
+To reproduce this experiment on GENI, you will need an account on the [GENI Portal](http://groups.geni.net/geni/wiki/SignMeUp), and you will need to have [joined a project](http://groups.geni.net/geni/wiki/JoinAProject). You should have already [uploaded your SSH keys to the portal and know how to log in to a node with those keys](http://groups.geni.net/geni/wiki/HowTo/LoginToNodes). If you're not sure if you have those skills, you may want to try [Lab Zero](http://tinyurl.com/geni-labzero) first.
+
+* Skip to [Results](#results)
+* Skip to [Run my experiment](#runmyexperiment)
+
+
 ## Background
 
- There exists a digital divide between web developers and internet users in the United States. Some households do not have high-speed Internet avavilable in their area, or cannot pay for high-speed Internet. As a result, there is a lot of variation in Internet speed across households in the US. We see this in the image below, which shows the relative frequency of different download speeds of US households. Meanwhile, web developers and researchers usually have top-notch internet connections. This disparity is called the "digital divide".
+ There exists a digital divide between web developers and internet users in the United States. Some households do not have high-speed Internet avavilable in their area, or cannot pay for high-speed Internet. As a result, there is a lot of variation in Internet speed across households in the US. We see this in the image below, which shows the relative frequency of different download speeds of US households sampled by the FCC as part of the Measuring Broadband America program [[1](#references)]. 
  
  ![varying speeds graph](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/percentDLwithColor.png) 
  
- Internet researchers and developers mainly use high-speed home or university Internet connections to test new ideas, or they use dedicated infrastructure called "testbeds" that have good quality links [1]. Sometimes they use a single device, or a small sample of machines to run tests, but these tests are done directly connected to university networks, which have much better speeds than most home users [2].  
+ Meanwhile, web developers and researchers usually have top-notch internet connections. This disparity is a "digital divide" that creates an "empathy gap" between the developers/researchers and ordinary users.
  
- Alternatively, researchers may use a platform called GENI to test developments on dedicated research infrastructure. When using GENI, reseachers use a web-based interface in which virtual machines (VMs) can be dragged onto the canvas area, and connected by links (as show in the screenshot below). These virtual machines and links are then reserved at one of a set of server racks at universities across the US, and researchers can log into each of the virtual machines, install networked applications, and use them and measure their performance. However, the default link speed on GENI is 100 megabits per second, which we see in the image above is much higher than most US households' download speed. Also, default latency and packet loss on GENI is minimal, which does not at all similar to real household network connections. 
+ Internet researchers and developers mainly use high-speed home or university Internet connections to test new ideas, or they use dedicated infrastructure called "testbeds" that have good quality links. Sometimes they use a single device, or a small sample of machines to run tests, but these tests are done directly connected to university networks, which have much better speeds than most home users.  
  
-  ![GENI portal](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/geniexample.PNG) 
-
+ Alternatively, researchers may use a platform called GENI [[2](#references)] to test developments on dedicated research infrastructure. When using GENI, reseachers use a web-based interface in which virtual machines (VMs) can be dragged onto the canvas area, and connected by links. These virtual machines and links are then reserved at one of a set of server racks at universities across the US, and researchers can log into each of the virtual machines, install networked applications, and use them and measure their performance. However, the default link speed on GENI is 100 megabits per second, which we see in the image above is much higher than most US households' download speed. Also, default latency and packet loss on GENI is minimal, which is not at all similar to real household network connections. 
+ 
 Characteristics such as download speed, upload speed, latency, jitter, and packet loss, _can_ be changed on GENI. However, many researchers do not change these to something more realistic. If researchers do not deliberately change characteristics of the link to match their target users' network characteristics, the network that they test on will not accurately represent real households.
 
-When developers and researchers do not test their ideas on a variety of realistic networks, their advancements may not work as intended for the millions of Americans who have different Internet speeds. Companies like Facebook recognize the importance of this. Facebook instituted a program called "2G Tuesdays" where employees have the option of using low-quality Internet speeds similar to that of the developing world, in order to get a better understanding of how people with worse internet speeds experience their applications [4]. This experiment actually had a big impact on the Facebook team, and they have said that it led them to change the way parts of the Messenger app work to better support users in emerging markets.
+When developers and researchers do not test their ideas on a variety of realistic networks, their advancements may not work as intended for the millions of Americans who have different Internet speeds. Companies like Facebook recognize the importance of this. Facebook instituted a program called "2G Tuesdays" where employees have the option of using low-quality Internet speeds similar to that of the developing world, in order to get a better understanding of how people with worse internet speeds experience their applications [[3](#references)]. Testing on realistic networks actually had a big impact on the Facebook team, and they have said that it led them to change the way parts of the Messenger app work to better support users in emerging markets [[4](#references)].
  
+ Our goal was to make it easy for researchers to use more realistic networks on GENI. With more realistic networks to test on, researchers should be able to make advancements that have a better impact on more US households' internet. Our result is a Python script that looks up representative network information in a data set of real home Internet measurements, and produces an output file that researchers can then use to test their networking ideas on a link that emulates that specific home.
  
- Our goal was to make it easy for researchers to use more realistic networks on GENI. With more realistic networks to test on, researchers should be able to make advancements that have a better impact on more Americans' internet. Our result is a Python script that looks up representative network information in a data set of real home Internet measurements, and produces an output file that researchers can then use to test their networking ideas on a link that emulates that specific home.
+ We used a dataset of measurements from the Measuring Broadband America program [[1](#references)]. This is a program by the FCC to gather information on the Internet quality of US households. Volunteer panelists get a wireless router through which they connect to the Internet using their regular Internet plan provided by their own Internet service provider (ISP). The router automatically runs network tests every hour and reports measurements back to the FCC. The panelists have a range of Internet service plans, of different types (cable, satellite, fiber, DSL), from different ISPs, and paying different prices for different upload and download speeds. They also come from different locations around the US. Potential panelists are selected so that the measurements give information about all the different kinds of Internet service plans available in the US. We linked this data to a dataset called the Urban Rate Survey [[6](#references)], which gives information about the price of service for a plan with a given upload and download rate, in a particular urban area, from a specific ISP.
  
- We used a dataset of measurements from the Measuring Broadband America program. This is a program by the FCC to gather information on the Internet quality of US households. Volunteer panelists get a wireless router through which they connect to the Internet using their regular Internet plan provided by their own Internet service provider (ISP). The router automatically runs network tests every hour and reports measurements back to the FCC. The panelists have a range of Internet service plans, of different types (cable, satellite, fiber, DSL), from different ISPs, and paying different prices for different upload and download speeds. They also come from different locations around the US. Potential panelists are selected so that the measurements give information about all the different kinds of Internet service plans available in the US.
  
  The tool we created is a Python script that samples a random household from this dataset, and finds the measurements of that household's Internet connection in the data set. Researchers using our tool can also specify as input the state, price range, and/or technology so as to limit their outputs to households that represent a target group. For example, if a researcher is trying to make an application specifically for lower income communities, then the researcher would most likely search for a household paying a low price. The map below shows examples of households across the United States, paying different prices, with different ISPs, and in states with different average Internet speed, as a demonstration of the range of households researchers can emulate in their tests:
  
@@ -25,126 +37,297 @@ When developers and researchers do not test their ideas on a variety of realisti
 
 Once an actual household is selected from the dataset, the information from the household can be used in two ways. Our code generates a "resource specification" (RSpec) file that can be used directly to create a small network on GENI. In the network, one VM represents the user, and the other represents the server (as shown in the image below). The link between the user and the server has the same qualities - upload speed, download speed, latency, jitter, and packet loss - as the selected household. The researchers can then log in to the VMs and run experiments over that link, which represents a real US household.
 
-![GENI topology](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/GENIposter.PNG) 
-
-Our tool also generates a profile that can be used in Augmented Traffic Control (ATC), which is the technology developed by Facbeook for programs like "2G Tuesdays". With ATC, a researcher tunnels the network traffic from their own laptop or phone through a link on GENI, and browses the Internet or use apps through that link. Using a browser-based UI (shown in the image below), researchers can make that link through which their traffic travels have specific characteristics. Our tool generates an ATC profile that can be applied to the tunneled traffic, so that it has the qualities of the sampled US household.
-
-![ATC](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/profiles.PNG) 
+Our tool also generates a profile that can be used in Augmented Traffic Control (ATC), which is a technology developed by Facbeook that supports programs like "2G Tuesdays". With ATC, a researcher tunnels the network traffic from their own laptop or phone through a link on GENI, and browses the Internet or use apps through that link [[5](#references)]. Using a browser-based UI (shown in the image below), researchers can make that link through which their traffic travels have specific characteristics. Our tool generates an ATC profile that can be applied to the tunneled traffic, so that it has the qualities of the sampled US household.
 
 Depending on how much control they need to have over the network and the endpoints, researchers may prefer one solution or the other. Because there are no outside factors involved, the first approach using links and end hosts only on GENI allows researchers to test advancements in  a very controlled environment. The second method includes outside influences, since in addition to going through the GENI link the traffic also goes over the regular Internet. Also, researchers do not have total control over the end hosts. But, with ATC you can use graphical applications, like a regular web browser, and you can also include external factors like load on the target server.
 
 
 We hope that the GENI network and the internet profile our tool generates will have an impact on researchers.  If a new advancement is tested on multiple households, researchers will get a better idea whether or not their application works under different circumstances. Our ultimate goal is for this tool to help researchers design more effective developements for everybody.
- 
+
+## Results
+
+Here are some sample results from a particular household, with ID 13451.
+
+When we run 
+
+```
+python src/finalexperiment.py --houseid 13451
+```
+
+we see the following expected link characteristics:
+
+```
+Selected household 13451 has the following characteristics:
+Plan: 25/25 (Mbps down/up), Verizon NY
+Estimated price per month: $74.99
+--------------------------------------------------------
+ Upload rate (kbps)    | 26087                             
+ Download rate (kbps)  | 30245                             
+ Round-trip delay (ms) | 10.620467                             
+ Uplink jitter (ms)    | 3.290144                             
+ Downlink jitter (ms)  | 1.192400                             
+ Packet loss (%)       | 0.045928                             
+--------------------------------------------------------
+Json written to /home/ffund/Projects/CodeRealisticTestbeds/house-13451.json
+Rspec written to /home/ffund/Projects/CodeRealisticTestbeds/houses.xml
+```
+
+When we reserve the topology in the "houses.xml" file on GENI, we find that the link speeds are approximately 26 Mbps up and 30 Mbps down, as expected:
+
+```
+ffund01@house-13451:~$ iperf -c server -w 400k -t 30 -i 2 -r
+------------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size:  416 KByte (WARNING: requested  400 KByte)
+------------------------------------------------------------
+------------------------------------------------------------
+Client connecting to server, TCP port 5001
+TCP window size:  416 KByte (WARNING: requested  400 KByte)
+------------------------------------------------------------
+[  3] local 10.0.0.1 port 48922 connected with 10.0.0.2 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0- 2.0 sec  6.25 MBytes  26.2 Mbits/sec
+[  3]  2.0- 4.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3]  4.0- 6.0 sec  5.88 MBytes  24.6 Mbits/sec
+[  3]  6.0- 8.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3]  8.0-10.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3] 10.0-12.0 sec  5.88 MBytes  24.6 Mbits/sec
+[  3] 12.0-14.0 sec  5.88 MBytes  24.6 Mbits/sec
+[  3] 14.0-16.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3] 16.0-18.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3] 18.0-20.0 sec  5.62 MBytes  23.6 Mbits/sec
+[  3] 20.0-22.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3] 22.0-24.0 sec  5.88 MBytes  24.6 Mbits/sec
+[  3] 24.0-26.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3] 26.0-28.0 sec  5.88 MBytes  24.6 Mbits/sec
+[  3] 28.0-30.0 sec  6.00 MBytes  25.2 Mbits/sec
+[  3]  0.0-30.1 sec  89.4 MBytes  24.9 Mbits/sec
+[  5] local 10.0.0.1 port 5001 connected with 10.0.0.2 port 58396
+[  5]  0.0- 2.0 sec  6.77 MBytes  28.4 Mbits/sec
+[  5]  2.0- 4.0 sec  6.86 MBytes  28.8 Mbits/sec
+[  5]  4.0- 6.0 sec  6.90 MBytes  29.0 Mbits/sec
+[  5]  6.0- 8.0 sec  6.83 MBytes  28.7 Mbits/sec
+[  5]  8.0-10.0 sec  6.90 MBytes  29.0 Mbits/sec
+[  5] 10.0-12.0 sec  6.80 MBytes  28.5 Mbits/sec
+[  5] 12.0-14.0 sec  5.77 MBytes  24.2 Mbits/sec
+[  5] 14.0-16.0 sec  6.36 MBytes  26.7 Mbits/sec
+[  5] 16.0-18.0 sec  6.90 MBytes  28.9 Mbits/sec
+[  5] 18.0-20.0 sec  6.86 MBytes  28.8 Mbits/sec
+[  5] 20.0-22.0 sec  6.88 MBytes  28.9 Mbits/sec
+[  5] 22.0-24.0 sec  6.87 MBytes  28.8 Mbits/sec
+[  5] 24.0-26.0 sec  6.82 MBytes  28.6 Mbits/sec
+[  5] 26.0-28.0 sec  6.50 MBytes  27.2 Mbits/sec
+[  5] 28.0-30.0 sec  6.92 MBytes  29.0 Mbits/sec
+[  5]  0.0-30.2 sec   101 MBytes  28.2 Mbits/sec
+```
+
+And the round-trip latency is a little over 10 ms, as expected:
+
+
+```
+ffund01@house-13451:~$ ping server -c 10
+PING server-lan0 (10.0.0.2) 56(84) bytes of data.
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=1 ttl=64 time=14.0 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=2 ttl=64 time=12.1 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=3 ttl=64 time=10.4 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=4 ttl=64 time=9.59 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=5 ttl=64 time=12.0 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=6 ttl=64 time=8.64 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=7 ttl=64 time=8.66 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=8 ttl=64 time=12.6 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=9 ttl=64 time=7.71 ms
+64 bytes from server-lan0 (10.0.0.2): icmp_seq=10 ttl=64 time=7.92 ms
+
+--- server-lan0 ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9016ms
+rtt min/avg/max/mdev = 7.711/10.378/14.044/2.095 ms
+```
+
 
 ## Run my experiment
 
-Download "full.csv" from my repository
+All of the materials needed are in the [CodeRealisticTestbeds](https://github.com/csmithsalzberg/CodeRealisticTestbeds) repository on GitHub.
 
-Download "finalexperiment.py" from src/ and put it in a subdirectory to full.csv (one level lower than full.csv)
+To run our Python script, you will need some prerequisite libraries:
 
-Next, follow instructions [here](https://www.continuum.io/downloads), to download Anaconda
+* [geni-lib](https://geni-lib.readthedocs.io/en/latest/)
+* [pandas](http://pandas.pydata.org/)
 
-Follow [this tutorial](https://witestlab.poly.edu/respond/sites/genitutorial/module/introduction-testbeds) to learn how to use GENI
+On Ubuntu 14.04, you can download and install the prerequisite software by running the [install.sh](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/install.sh) script in our repository:
 
-Install [geni-lib](https://geni-lib.readthedocs.io/en/latest/intro/install.html)
- 
-Run the script from the directory with full.csv in it: python finalexperiment.py
+```
+wget https://raw.githubusercontent.com/csmithsalzberg/CodeRealisticTestbeds/master/install.sh
+bash install.sh
+```
+(You can reserve a single VM with Ubuntu 14.04 on an InstaGENI aggregate for purposes of running this experiment, and set it up with that script.) Alternatively, if you prefer to run it on your own computer, you can install the prerequisites on other platforms:
 
-If you want to filter by state, technology, or price range: python finalexperiment.py --state (two letter code) --houseid (any number, but database doesn't include most) --price_range min-max --Technology (CABLE, FIBER, or DSL)
+* [geni-lib installation](https://geni-lib.readthedocs.io/en/latest/intro/install.html)
+* [pandas installation](http://pandas.pydata.org/pandas-docs/stable/install.html). The easiest way to get `pandas` may be to use [anaconda](https://docs.continuum.io/anaconda/).
+
+
+Once you have installed the prerequisites, you should clone our repository, and navigate to its root directory:
+
+```
+git clone https://github.com/csmithsalzberg/CodeRealisticTestbeds
+cd CodeRealisticTestbeds
+```
+
+Then, run our script with
+
+```
+python src/finalexperiment.py
+```
+
 
 The output should look something like this: 
-<pre>
-for user:
-sudo tc qdisc add dev eth1 root handle 1:0 netem delay 9.2172741821ms 3.00476386913ms loss 0.0286073654638%
-sudo qdisc add dev eth1 parent 1:1 handle 10: tbf rate 1058kbit limit 500000000 burst 100000
-for server:
-sudo tc qdisc add dev eth1 root netem delay 9.2172741821ms 2.43315504979ms loss 0.0286073654638%
-sudo tc qdisc add dev eth1 parent 1:1 handle 10: tbf rate 15778kbit limit 500000000 burst 100000
-Rspec written to file
-{
-    "content": {
-        "down": {
-            "corruption": {
-                "correlation": 0,
-                "percentage": 0
-            },
-            "delay": {
-                "correlation": 0,
-                "delay":"9.2172741821",
-                "jitter":"2.43315504979"
-            },
-            "iptables_options": [],
-            "loss": {
-                "correlation": 0,
-                "percentage":"0.0286073654638"
-            },
-            "rate":"15778",
-            "reorder": {
-                "correlation": 0,
-                "gap": 0,
-                "percentage": 0
-            }
-        },
-        "up": {
-            "corruption": {
-                "correlation": 0,
-                "percentage": 0
-            },
-            "delay": {
-                "correlation": 0,
-                "delay":"9.2172741821",
-                "jitter":"3.00476386913"
-            },
-            "iptables_options": [],
-            "loss": {
-                "correlation": 0,
-                "percentage":"0.0286073654638"
-            },
-            "rate":"1058",
-            "reorder": {
-                "correlation": 0,
-                "gap": 0,
-                "percentage": 0
-            }
-        }
-    },
-    "id": 10,
-    "name": "house8334"
-}
-</pre>
 
-Now, log into GENI and create a new slice
+```
+Selected household 619842 has the following characteristics:
+Plan: 5/1 (Mbps down/up), Hughes OK
+--------------------------------------------------------
+ Upload rate (kbps)    | 1852                             
+ Download rate (kbps)  | 14127                             
+ Round-trip delay (ms) | 1041.867972                             
+ Uplink jitter (ms)    | 332.884326                             
+ Downlink jitter (ms)  | 17.932186                             
+ Packet loss (%)       | 0.138555                             
+--------------------------------------------------------
+Json written to /home/ffund/Projects/CodeRealisticTestbeds/house-619842.json
+Rspec written to /home/ffund/Projects/CodeRealisticTestbeds/houses.xml
+```
 
-Next you want to copy the contents of miniexperiment.xml and place it in the textbox on the GENI interface. A two node topology should pop up.
+It will create one RSpec (XML file), as awell as an ATC profile (JSON file) for each sampled household.
 
-Log into both the nodes using ssh.
+If you would like to focus on a particular target demographic, you can filter by state, technology, or price range. Use 
 
-Run the two commands under "user" on the node titled user and the two commands under "server" on the node titled server.
+```
+python src/finalexperiment.py --help
+```
 
-Those nodes are then set up and ready with the correct characteristics.
+to get usage information.
 
-Follow instructions [here](https://witestlab.poly.edu/blog/2g-tuesdays-emulating-realistic-network-conditions-in-emerging-markets/) to set up the ATC web browsing part of the experiment.
+For example, to get a link representative of a household with satellite Internet service, you could run:
+
+```
+python src/finalexperiment.py  --technology SATELLITE
+```
+
+or, to get a link representative of a household in NY state with satellite Internet service, you could run:
+
+```
+python src/finalexperiment.py  --technology SATELLITE --state NY
+```
+
+To get a link representative of a household that pays $30-40 per month for DSL service, you could run:
+
+```
+python src/finalexperiment.py  --technology DSL --price 30-40
+```
+
+You can also request a topology with an arbitrary number of users ("houses"); for example, to get two houses, run
+
+```
+python src/finalexperiment.py --users 2
+```
+
+### Use the RSpec to "create" the household on GENI
+
+To use the RSpec (XML file) generated by our tool, create a new slice in the [GENI Portal](http://portal.geni.net). Click "Add Resources".
+
+You can load the RSpec in either of two ways:
+* In the "Choose RSpec" section, select "File", upload the XML file, and click "Select".
+* In the "Choose RSpec" section, select "Text Box". Please the contents of the XML file into the textbox and click "Select".
+ 
+The canvas should now show a server node and one or more "house" nodes (depending on the number of users you requested), like this:
+
+![](https://raw.githubusercontent.com/csmithsalzberg/CodeRealisticTestbeds/master/bridging-empathy-topology.png)
+
+Click on "Site 1" and choose an InstaGENI site to bind to. Then click "Reserve Resources". Wait until your nodes are ready to log in, then log into each of the nodes using SSH. 
+
+After your nodes boot up, you may still need to wait a couple of minutes for the postboot commands to finish running. These commands use `netem` to emulate the desired link characteristics. To verify that the netem commands have been applied, run
+
+```
+tc qdisc show
+```
+
+You should see `netem` and `tbf` rules on all interfaces except for the control interface (typically `eth0`), like this:
+
+```
+qdisc pfifo_fast 0: dev eth0 root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+qdisc netem 1: dev eth1 root refcnt 2 limit 1000 delay 5.4ms  601us loss 0.048695%
+qdisc tbf 10: dev eth1 parent 1:1 rate 42463Kbit burst 99989b lat 94.2s 
+qdisc netem 1: dev eth2 root refcnt 2 limit 1000 delay 5.3ms  1.2ms loss 0.045928%
+qdisc tbf 10: dev eth2 parent 1:1 rate 30245Kbit burst 99993b lat 132.2s 
+```
+
+You should validate the link settings to confirm that they have been applied. At any of the "house" nodes, run 
+
+```
+ping server
+```
+
+to measure the latency. To validate the link speeds, run 
+
+```
+iperf -s -w 400k
+```
+
+on the server, then on the "house" node, run 
+
+```
+iperf -c server -w 400k -t 30 -i 5 -r
+```
+
+to measure the throughput in each direction. The first report will be for uplink rate, and the second report will be for downlink rate. You should compare these numbers (and the `ping` results) to the output of the Python script for the household, and make sure that the link characteristics are approximately the same. (However, note that for houses with high latency, jitter, and packet loss, the measured link speeds will probably be somewhat lower due to the effect of these impairments on TCP.)
+
+### Using ATC to browse the Internet with a specific household's network characteristics
+
+To use the ATC profile (JSON file) generated by our tool,follow the instructions in [2G Tuesdays: emulating realistic network conditions in emerging markets](https://witestlab.poly.edu/blog/2g-tuesdays-emulating-realistic-network-conditions-in-emerging-markets/) to set up ATC. However, before this step:
+
+> Finally, we'll set up some prepared network profiles. Open a third connection to "openvpn", and run:
+> 
+> ```
+> cd ~/augmented-traffic-control/utils/  
+> bash restore-profiles.sh localhost:8000  
+> ```
+
+you should copy the JSON file(s) generated by the script to the `~/augmented-traffic-control/utils/profiles` directory on the "openvpn" node (e.g. with [scp](http://linux.die.net/man/1/scp)). Then, proceed with the ATC setup instructions.
+
+When you get up to the part where you open the ATC web UI, you should see your sampled household(s) listed with their house ID (in addition to the built-in profile): 
+
+![](https://raw.githubusercontent.com/csmithsalzberg/CodeRealisticTestbeds/master/bridging-atcui-screenshot.png)
+
+and you can select one of them and apply it to your proxied browser.
+
+Test that you have everything set up correctly by browsing under the provided profiles to check that the internet is being shaped.
+
+### Release resources
+
+When you have finished the experiment, please delete your resources on the GENI Portal to free them for use by other experimenters.
+
+## Notes
+
+Some caveats:
+
+* The [tbf](http://lartc.org/manpages/tc-tbf.html) rate limiting may not work well at high data rates. Specifically, it may throttle the link _too_ much.
+* Other factors, like latency and packet loss, can affect the measured throughput.
+* The data in this repository comes from the 2015 edition of the Measuring Broadband America program, specfiically the validated data set from September 2014, and the Urban Rate Survey for the corresponding year. To repeat this analysis for another year, please refer to the [Appendix](https://github.com/csmithsalzberg/CodeRealisticTestbeds/blob/master/Appendix.md) which describes how we transformed the data set for use with our Python script.
+
+## References
+
+[1] "2015 Measuring Broadband America Fixed Report." Federal Communications Commission. 2015. [https://www.fcc.gov/reports-research/reports/measuring-broadband-america/measuring-broadband-america-2015](https://www.fcc.gov/reports-research/reports/measuring-broadband-america/measuring-broadband-america-2015)
+
+[2] Mark Berman, Jeffrey S. Chase, Lawrence Landweber, Akihiro Nakao, Max Ott, Dipankar Raychaudhuri, Robert Ricci, and Ivan Seskar. "GENI: A federated testbed for innovative network experiments." _Computer Networks_ 61 (2014): 5-23. [http://dx.doi.org/10.1016/j.bjp.2013.12.037](http://dx.doi.org/10.1016/j.bjp.2013.12.037)
+
+[3] Chris Marra. "Building for emerging markets: The story behind 2G Tuesdays." Facebook Code. 27 Oct. 2015. [https://code.facebook.com/posts/1556407321275493/building-for-emerging-markets-the-story-behind-2g-tuesdays/](https://code.facebook.com/posts/1556407321275493/building-for-emerging-markets-the-story-behind-2g-tuesdays/)
+
+[4] Manu Chantra,	John Morrow. "Augmented Traffic Control: A Tool to Simulate Network Conditions." Facebook Code. 23 March 2015. [https://code.facebook.com/posts/1561127100804165/augmented-traffic-control-a-tool-to-simulate-network-conditions/](https://code.facebook.com/posts/1561127100804165/augmented-traffic-control-a-tool-to-simulate-network-conditions/)
+
+[5] Fraida Fund. "2G Tuesdays: Emulating Realistic Network Conditions in Emerging Markets." Run My Experiment on GENI. Blog. 04 Aug. 2016. [https://witestlab.poly.edu/blog/2g-tuesdays-emulating-realistic-network-conditions-in-emerging-markets/](https://witestlab.poly.edu/blog/2g-tuesdays-emulating-realistic-network-conditions-in-emerging-markets/)
+
+[6] "Urban Rate Survey Data & Resources." Federal Communications Commission. [https://www.fcc.gov/general/urban-rate-survey-data-resources](https://www.fcc.gov/general/urban-rate-survey-data-resources)
 
 
-Once finished with that: cd ~/augmented-traffic-control/utils/profiles on an openvpn node
 
-Add a new file titled (anything).json and copy the contents under "Rspec written to file" and ending with "}" to the new file in profiles.
-
-cd .. and then run bash restore-profiles.sh localhost:8000 
-
-Refresh http://10.8.0.1:8000, and you should see your new profile
-
-Select that profile, and surf the web on the proxied tab. You are now using an internet connection modelled by the sampled household!
-
-Thank you for participating!
-
-## Citations
-
-[1] Muhammad, Monzur, and Justin Cappos. "Towards a representive testbed: Harnessing volunteers for networks research." The First GENI Research and Educational Workshop, GREE. Vol. 12. 2012.
-
-[2] Yung-Chih Chen, Don Towsley, and Ramin Khalili. 2014. MSPlayer: Multi-Source and multi-Path LeverAged YoutubER. In Proceedings of the 10th ACM International on Conference on emerging Networking Experiments and Technologies (CoNEXT '14). ACM, New York, NY, USA, 263-270. DOI=http://dx.doi.org/10.1145/2674005.2675007 
-
-[3] "Augmented Traffic Control: A Tool to Simulate Network Conditions." Facebook Code. N.p., n.d. Web. 01 Aug. 2016.
 
 
